@@ -16,17 +16,17 @@ app.use(
 app.post("/webhook", async (req, res) => {
   try {
     // Optional: Verify the webhook is genuinely from Resend
-    if (process.env.RESEND_WEBHOOK_SECRET) {
-      resend.webhooks.verify({
-        payload: req.rawBody,
-        headers: {
-          id: req.headers["svix-id"],
-          timestamp: req.headers["svix-timestamp"],
-          signature: req.headers["svix-signature"],
-        },
-        webhookSecret: process.env.RESEND_WEBHOOK_SECRET,
-      });
-    }
+    // if (process.env.RESEND_WEBHOOK_SECRET) {
+    //   resend.webhooks.verify({
+    //     payload: req.rawBody,
+    //     headers: {
+    //       id: req.headers["svix-id"],
+    //       timestamp: req.headers["svix-timestamp"],
+    //       signature: req.headers["svix-signature"],
+    //     },
+    //     webhookSecret: process.env.RESEND_WEBHOOK_SECRET,
+    //   });
+    // }
 
     const event = req.body;
 
@@ -35,9 +35,9 @@ app.post("/webhook", async (req, res) => {
       const originalTo = event.data.to?.[0] || "unknown";
       const subject = event.data.subject || "(no subject)";
 
-      const recipients = process.env.FORWARD_TO.split(",").map((e) =>
-        e.trim(),
-      ).filter(Boolean);
+      const recipients = process.env.FORWARD_TO.split(",")
+        .map((e) => e.trim())
+        .filter(Boolean);
 
       console.log(
         `Forwarding email "${subject}" (id: ${emailId}) to ${recipients.join(", ")}`,
@@ -55,7 +55,10 @@ app.post("/webhook", async (req, res) => {
 
       const errors = results.filter((r) => r.error);
       if (errors.length) {
-        console.error("Forward errors:", errors.map((e) => e.error));
+        console.error(
+          "Forward errors:",
+          errors.map((e) => e.error),
+        );
         return res.status(500).json({ errors: errors.map((e) => e.error) });
       }
 
